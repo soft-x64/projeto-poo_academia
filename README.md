@@ -1,6 +1,6 @@
 # Projeto-POO_academia
 
-# 🏋️ TrainerX64 - Sistema de Academia (POO + Banco de Dados)
+# 🏋️ TrainerX64 - Sistema de Academia (POO)
 
 Trabalho prático desenvolvido para a disciplina de Programação Orientada a Objetos (2026.1) no ICET - UFAM.
 
