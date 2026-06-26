@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class Pessoa(ABC):
     def __init__(self, nome: str, cpf: str, email: str, telefone: str):
         # Usamos os setters aqui (com self.nome em vez de self._nome) 
-        # para garantir que as validações rodem logo no cadastro!
+        # para garantir que as validações rodem logo no cadastro
         self.nome = nome
         self.cpf = cpf
         self.email = email
