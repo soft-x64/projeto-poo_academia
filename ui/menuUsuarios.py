@@ -1,9 +1,8 @@
 from models.aluno import Aluno
-from models.personal import Personal
+from models.personal import Personal  
 from models.execeptions import CPFInvalidoError, ValorInvalidoError
 
-
-def menu_usuarios(aluno_service, personal_repository):
+def menu_usuarios(aluno_service, instrutor_repository):
     while True:
         print("\n--- GESTAO DE USUARIOS ---")
         print("1. Cadastrar Aluno")
@@ -12,6 +11,7 @@ def menu_usuarios(aluno_service, personal_repository):
         print("4. Voltar")
         
         opcao = input("Escolha uma opcao: ")
+        
         if opcao == '1':
             print("\n--- Cadastro de Aluno ---")
             try:
@@ -23,17 +23,18 @@ def menu_usuarios(aluno_service, personal_repository):
                 altura = float(input("Altura (m): "))
                 
                 aluno = Aluno(nome, cpf, email, telefone, peso, altura)
-            
+                
+              
                 aluno_service.cadastrar_aluno(aluno)
-                print(f"Sucesso: Aluno {aluno.nome} cadastrado!")
+                print(f"Sucesso: Aluno {aluno.nome} cadastrado com persistência no banco!")
                 
             except (CPFInvalidoError, ValorInvalidoError) as e:
                 print(f"Erro de Validação: {e}")
             except ValueError:
                 print("Erro: insira valores numericos validos.")
             except Exception as e:
-                
-                print(f"Erro de Sistema: {e}")
+              
+                print(f"Erro: {e}")
                 
         elif opcao == '2':
             print("\n--- Cadastro de Personal ---")
@@ -45,11 +46,11 @@ def menu_usuarios(aluno_service, personal_repository):
                 cref = input("CREF: ")
                 especialidade = input("Especialidade: ")
                 
-                personal = Personal(nome, cpf, email, telefone, cref, especialidade)
-                
               
-                personal_repository.salvar(personal)
-                print(f"Sucesso: Personal {personal.nome} cadastrado!")
+                personal = Personal(nome, cpf, email, telefone, cref, especialidade)
+                instrutor_repository.inserir(personal)
+                print(f"Sucesso: Personal {personal.nome} cadastrado no banco!")
+                
             except CPFInvalidoError as e:
                 print(f"Erro: {e}")
             except ValueError:
@@ -58,16 +59,23 @@ def menu_usuarios(aluno_service, personal_repository):
                 print(f"Erro de Sistema: {e}")
                 
         elif opcao == '3':
-            print("\n--- Todos os Usuarios Cadastrados ---")
-        
+            print("\n--- Todos os Usuarios Cadastrados (Polimorfismo) ---")
+           
             lista_alunos = aluno_service.listar_alunos()
-            lista_personais = personal_repository.listar_todos()
+            
+            linhas_instrutores = instrutor_repository.listar_todos()
+            lista_personais = []
+            for linha in linhas_instrutores:
+         
+                p_obj = Personal(linha[1], linha[2], linha[3], linha[4], linha[5], "Geral")
+                lista_personais.append(p_obj)
             
             todos = lista_alunos + lista_personais
             if not todos:
-                print("Nenhum usuario cadastrado.")
+                print("Nenhum usuario cadastrado no banco.")
             for u in todos:
-                print(u.exibir_perfil()) 
+    
+                print(u.exibir_perfil())
                 
         elif opcao == '4':
             break
