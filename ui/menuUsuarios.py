@@ -2,7 +2,8 @@ from models.aluno import Aluno
 from models.personal import Personal
 from models.execeptions import CPFInvalidoError, ValorInvalidoError
 
-def menu_usuarios(lista_alunos, lista_personais):
+# Mudamos os parâmetros para receber as camadas de banco/serviço
+def menu_usuarios(aluno_service, personal_repository):
     while True:
         print("\n--- GESTAO DE USUARIOS ---")
         print("1. Cadastrar Aluno")
@@ -22,12 +23,18 @@ def menu_usuarios(lista_alunos, lista_personais):
                 altura = float(input("Altura (m): "))
                 
                 aluno = Aluno(nome, cpf, email, telefone, peso, altura)
-                lista_alunos.append(aluno)
+                
+                # --- AQUI ENTRA A SUA REGRA DE NEGÓCIO ---
+                aluno_service.cadastrar_aluno(aluno)
                 print(f"Sucesso: Aluno {aluno.nome} cadastrado!")
+                
             except (CPFInvalidoError, ValorInvalidoError) as e:
-                print(f"Erro: {e}")
+                print(f"Erro de Validação: {e}")
             except ValueError:
                 print("Erro: insira valores numericos validos.")
+            except Exception as e:
+                # Captura o erro se o CPF for duplicado na regra de negócio
+                print(f"Erro de Sistema: {e}")
                 
         elif opcao == '2':
             print("\n--- Cadastro de Personal ---")
@@ -40,15 +47,23 @@ def menu_usuarios(lista_alunos, lista_personais):
                 especialidade = input("Especialidade: ")
                 
                 personal = Personal(nome, cpf, email, telefone, cref, especialidade)
-                lista_personais.append(personal)
+                
+                # Salva o personal no banco usando o repositório do Eduardo
+                personal_repository.salvar(personal)
                 print(f"Sucesso: Personal {personal.nome} cadastrado!")
             except CPFInvalidoError as e:
                 print(f"Erro: {e}")
             except ValueError:
                 print("Erro: dados invalidos.")
+            except Exception as e:
+                print(f"Erro de Sistema: {e}")
                 
         elif opcao == '3':
             print("\n--- Todos os Usuarios Cadastrados ---")
+            # Busca os dados atualizados vindos do banco de dados
+            lista_alunos = aluno_service.listar_alunos()
+            lista_personais = personal_repository.listar_todos()
+            
             todos = lista_alunos + lista_personais
             if not todos:
                 print("Nenhum usuario cadastrado.")
