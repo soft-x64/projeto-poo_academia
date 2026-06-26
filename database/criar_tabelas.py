@@ -1,4 +1,6 @@
-from database.connection import get_connection
+# Mude de: from database.connection import get_connection
+# Para:
+from database.conexao import get_connection
 
 def create_tables():
     """
