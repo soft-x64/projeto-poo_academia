@@ -12,7 +12,7 @@ Trabalho prático desenvolvido para a disciplina de Programação Orientada a Ob
 
 ## 🚀 Tecnologias Utilizadas
 * Python 3
-* PostgreSQL (via psycopg2)
+* PostgreSQL (via psycopg2)  
 
 ## 📌 Funcionalidades e Conceitos de POO Aplicados
 * **Classes Abstratas & Encapsulamento:** Implementados na classe base `Pessoa` e propriedades associadas.
