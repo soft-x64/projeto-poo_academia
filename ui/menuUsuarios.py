@@ -23,7 +23,6 @@ def menu_usuarios(aluno_service, instrutor_repository):
                 
                 aluno = Aluno(nome, cpf, email, telefone, peso, altura)
                 
-            
                 aluno_service.cadastrar_aluno(aluno)
                 print(f"Sucesso: Aluno {aluno.nome} cadastrado com exito!")
                 
@@ -32,7 +31,7 @@ def menu_usuarios(aluno_service, instrutor_repository):
             except ValueError:
                 print("Erro: insira valores numericos validos.")
             except Exception as e:
-          
+             
                 print(f"Erro no Cadastro: {e}")
                 
         elif opcao == '2':
@@ -47,7 +46,6 @@ def menu_usuarios(aluno_service, instrutor_repository):
                 
                 personal = Personal(nome, cpf, email, telefone, cref, especialidade)
                 
-   
                 instrutor_repository.inserir(personal)
                 print(f"Sucesso: Personal {personal.nome} cadastrado com exito!")
             except CPFInvalidoError as e:
@@ -59,13 +57,13 @@ def menu_usuarios(aluno_service, instrutor_repository):
                 
         elif opcao == '3':
             print("\n--- Todos os Usuarios Cadastrados (Banco de Dados) ---")
-          
+    
             lista_alunos = aluno_service.listar_alunos()
             
-      
+        
             lista_personais = []
             for linha in instrutor_repository.listar_todos():
-           
+
                 p = Personal(linha[1], linha[2], linha[3], linha[4], linha[5], "Geral")
                 lista_personais.append(p)
                 
@@ -73,7 +71,7 @@ def menu_usuarios(aluno_service, instrutor_repository):
             if not todos:
                 print("Nenhum usuario cadastrado no Banco de Dados.")
             for u in todos:
-                print(u.exibir_perfil())
+                print(u.exibir_perfil()) 
                 
         elif opcao == '4':
             break
