@@ -1,0 +1,6 @@
+from .aluno_repository import AlunoRepository
+from .instrutor_repository import InstrutorRepository
+from .aparelho_repository import AparelhoRepository
+from .exercicio_repository import ExercicioRepository
+from .ficha_treino_repository import FichaTreinoRepository
+from .avaliacao_fisica_repository import AvaliacaoFisicaRepository
