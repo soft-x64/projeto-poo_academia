@@ -7,8 +7,9 @@ class AlunoRepository:
 
     def salvar(self, aluno):
         cursor = self.conn.cursor()
+        # Nota: usamos aluno._nome, aluno._email, etc.
         sql = "INSERT INTO aluno (nome, email, telefone, objetivo) VALUES (%s, %s, %s, %s)"
-        cursor.execute(sql, (aluno.nomecompleto, aluno.email, aluno.contato, aluno.objetivo))
+        cursor.execute(sql, (aluno._nome, aluno._email, aluno._telefone, aluno.objetivo))
         self.conn.commit()
         cursor.close()
 
@@ -17,18 +18,12 @@ class AlunoRepository:
         cursor.execute("SELECT id, nome, email, telefone, objetivo FROM aluno")
         resultados = cursor.fetchall()
         cursor.close()
-        return [Aluno(id=r[0], nomecompleto=r[1], email=r[2], contato=r[3], objetivo=r[4]) for r in resultados]
+        # O construtor Aluno agora recebe os atributos padronizados
+        return [Aluno(id=r[0], nome=r[1], email=r[2], telefone=r[3], objetivo=r[4]) for r in resultados]
 
     def excluir(self, aluno_id):
         cursor = self.conn.cursor()
-        try:
-            # O rowcount nos diz quantas linhas foram deletadas
-            cursor.execute("DELETE FROM aluno WHERE id = %s", (aluno_id,))
-            linhas_afetadas = cursor.rowcount
-            self.conn.commit()
-            return linhas_afetadas > 0 # Retorna True se deletou, False se não achou
-        except Exception as e:
-            self.conn.rollback()
-            raise e
-        finally:
-            cursor.close()
+        cursor.execute("DELETE FROM aluno WHERE id = %s", (aluno_id,))
+        self.conn.commit()
+        cursor.close()
+        return cursor.rowcount > 0
