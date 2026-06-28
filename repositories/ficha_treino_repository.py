@@ -1,42 +1,28 @@
-from database import get_connection
+import psycopg2
+from models.ficha_treino import FichaTreino
 
 class FichaTreinoRepository:
-    def inserir(self, ficha_obj):
-        sql = "INSERT INTO ficha_treino (aluno_id, instrutor_id, descricao) VALUES (%s, %s, %s) RETURNING id;"
-        conn = None
+    def __init__(self):
+        self.conn = psycopg2.connect(dbname="academia_poo", user="postgres", password="123456", host="localhost")
+
+    def salvar(self, ficha):
+        cursor = self.conn.cursor()
         try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (ficha_obj.aluno_id, ficha_obj.instrutor_id, ficha_obj.descricao))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
+            sql = "INSERT INTO ficha_treino (idaluno, datainicio, datavencimento) VALUES (%s, %s, %s) RETURNING id"
+            cursor.execute(sql, (ficha.idAluno, ficha.dataInicio, ficha.dataVencimento))
+            id_ficha = cursor.fetchone()[0]
+            self.conn.commit()
+            return id_ficha
         except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro FichaTreinoRepository.inserir]: {e}")
+            self.conn.rollback()
             raise e
         finally:
-            if conn: conn.close()
+            cursor.close()
 
     def listar_todos(self):
-        # Join para trazer nomes e facilitar a visualização
-        sql = """
-            SELECT f.id, a.nome, i.nome, f.descricao 
-            FROM ficha_treino f
-            JOIN aluno a ON f.aluno_id = a.id
-            JOIN instrutor i ON f.instrutor_id = i.id;
-        """
-        conn = None
+        cursor = self.conn.cursor()
         try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            resultados = cursor.fetchall()
-            cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro FichaTreinoRepository.listar_todos]: {e}")
-            return []
+            cursor.execute("SELECT id, idaluno, datainicio, datavencimento FROM ficha_treino")
+            return cursor.fetchall()
         finally:
-            if conn: conn.close()
+            cursor.close()
