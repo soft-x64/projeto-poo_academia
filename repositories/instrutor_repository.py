@@ -1,61 +1,33 @@
-from database import get_connection
+import psycopg2
+from models.instrutor import Instrutor
 
 class InstrutorRepository:
-    def inserir(self, instrutor_obj):
-        sql = """
-            INSERT INTO instrutor (nome, cpf, email, telefone, especialidade) 
-            VALUES (%s, %s, %s, %s, %s) RETURNING id;
-        """
-        conn = None
+    def __init__(self):
+        self.conn = psycopg2.connect(dbname="academia_poo", user="postgres", password="123456", host="localhost")
+
+    def salvar(self, instrutor):
+        cursor = self.conn.cursor()
+        sql = "INSERT INTO instrutor (nomecompleto, cpf, email, telefone, especialidade) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (instrutor.nomecompleto, instrutor.cpf, instrutor.email, instrutor.telefone, instrutor.especialidade))
+        self.conn.commit()
+        cursor.close()
+
+    def listar(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, nomecompleto, cpf, email, telefone, especialidade FROM instrutor")
+        resultados = cursor.fetchall()
+        cursor.close()
+        return [Instrutor(id=r[0], nomecompleto=r[1], cpf=r[2], email=r[3], telefone=r[4], especialidade=r[5]) for r in resultados]
+
+    def excluir(self, instrutor_id):
+        cursor = self.conn.cursor()
         try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (
-                instrutor_obj.nome, 
-                instrutor_obj.cpf, 
-                instrutor_obj.email, 
-                instrutor_obj.telefone, 
-                instrutor_obj.especialidade
-            ))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
+            cursor.execute("DELETE FROM instrutor WHERE id = %s", (instrutor_id,))
+            linhas_afetadas = cursor.rowcount
+            self.conn.commit()
+            return linhas_afetadas > 0  # Retorna True se deletou, False se o ID não existia
         except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro InstrutorRepository.inserir]: {e}")
+            self.conn.rollback()
             raise e
         finally:
-            if conn: conn.close()
-
-    def listar_todos(self):
-        sql = "SELECT id, nome, cpf, email, telefone, especialidade FROM instrutor ORDER BY nome;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            resultados = cursor.fetchall()
             cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro InstrutorRepository.listar_todos]: {e}")
-            return []
-        finally:
-            if conn: conn.close()
-
-    def buscar_por_cpf(self, cpf):
-        sql = "SELECT id FROM instrutor WHERE cpf = %s;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (cpf,))
-            resultado = cursor.fetchone()
-            cursor.close()
-            return resultado is not None
-        except Exception as e:
-            print(f"[Erro InstrutorRepository.buscar_por_cpf]: {e}")
-            return False
-        finally:
-            if conn: conn.close()
