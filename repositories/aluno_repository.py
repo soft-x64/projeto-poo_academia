@@ -1,86 +1,34 @@
-from database import get_connection
+import psycopg2
+from models.aluno import Aluno
 
 class AlunoRepository:
-    def inserir(self, aluno_obj):
-        sql = "INSERT INTO aluno (nome, cpf, email, telefone) VALUES (%s, %s, %s, %s) RETURNING id;"
-        conn = None
+    def __init__(self):
+        self.conn = psycopg2.connect(dbname="academia_poo", user="postgres", password="123456", host="localhost")
+
+    def salvar(self, aluno):
+        cursor = self.conn.cursor()
+        sql = "INSERT INTO aluno (nome, email, telefone, objetivo) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (aluno.nomecompleto, aluno.email, aluno.contato, aluno.objetivo))
+        self.conn.commit()
+        cursor.close()
+
+    def listar(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, nome, email, telefone, objetivo FROM aluno")
+        resultados = cursor.fetchall()
+        cursor.close()
+        return [Aluno(id=r[0], nomecompleto=r[1], email=r[2], contato=r[3], objetivo=r[4]) for r in resultados]
+
+    def excluir(self, aluno_id):
+        cursor = self.conn.cursor()
         try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (aluno_obj.nome, aluno_obj.cpf, aluno_obj.email, aluno_obj.telefone))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
+            # O rowcount nos diz quantas linhas foram deletadas
+            cursor.execute("DELETE FROM aluno WHERE id = %s", (aluno_id,))
+            linhas_afetadas = cursor.rowcount
+            self.conn.commit()
+            return linhas_afetadas > 0 # Retorna True se deletou, False se não achou
         except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro AlunoRepository.inserir]: {e}")
+            self.conn.rollback()
             raise e
         finally:
-            if conn: conn.close()
-
-    def atualizar(self, aluno_obj):
-        sql = "UPDATE aluno SET nome = %s, email = %s, telefone = %s WHERE id = %s;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (aluno_obj.nome, aluno_obj.email, aluno_obj.telefone, aluno_obj.id))
-            conn.commit()
             cursor.close()
-            return True
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"Erro ao atualizar: {e}")
-            return False
-        finally:
-            if conn: conn.close()
-
-    def buscar_por_cpf(self, cpf):
-        sql = "SELECT id FROM aluno WHERE cpf = %s;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (cpf,))
-            resultado = cursor.fetchone()
-            cursor.close()
-            return resultado is not None
-        except Exception as e:
-            print(f"[Erro AlunoRepository.buscar_por_cpf]: {e}")
-            return False
-        finally:
-            if conn: conn.close()
-
-    def listar_todos(self):
-        sql = "SELECT id, nome, cpf, email, telefone FROM aluno ORDER BY nome;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            resultados = cursor.fetchall()
-            cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro AlunoRepository.listar_todos]: {e}")
-            return []
-        finally:
-            if conn: conn.close()
-
-    def excluir(self, id_aluno):
-        sql = "DELETE FROM aluno WHERE id = %s;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (id_aluno,))
-            conn.commit()
-            cursor.close()
-            return True
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro AlunoRepository.excluir]: {e}")
-            return False
-        finally:
-            if conn: conn.close()
