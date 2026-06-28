@@ -1,44 +1,21 @@
-from database import get_connection
+import psycopg2
+from models.avaliacao_fisica import AvaliacaoFisica
 
 class AvaliacaoFisicaRepository:
-    def inserir(self, avaliacao_obj):
-        sql = """
-            INSERT INTO avaliacao_fisica (aluno_id, peso, altura, data_avaliacao) 
-            VALUES (%s, %s, %s, %s) RETURNING id;
-        """
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (
-                avaliacao_obj.aluno_id, 
-                avaliacao_obj.peso, 
-                avaliacao_obj.altura, 
-                avaliacao_obj.data_avaliacao
-            ))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro AvaliacaoFisicaRepository.inserir]: {e}")
-            raise e
-        finally:
-            if conn: conn.close()
+    def __init__(self):
+        self.conn = psycopg2.connect("dbname=academia_poo user=postgres password=123456 host=localhost")
 
-    def listar_por_aluno(self, aluno_id):
-        sql = "SELECT id, peso, altura, data_avaliacao FROM avaliacao_fisica WHERE aluno_id = %s ORDER BY data_avaliacao DESC;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (aluno_id,))
-            resultados = cursor.fetchall()
-            cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro AvaliacaoFisicaRepository.listar_por_aluno]: {e}")
-            return []
-        finally:
-            if conn: conn.close()
+    def salvar(self, av):
+        cursor = self.conn.cursor()
+        sql = """INSERT INTO avaliacao_fisica (alunoid, instrutorid, peso, altura, imc) 
+                 VALUES (%s, %s, %s, %s, %s)"""
+        cursor.execute(sql, (av.alunoId, av.instrutorId, av.peso, av.altura, av.imc))
+        self.conn.commit()
+        cursor.close()
+
+    def buscar_por_aluno(self, aluno_id):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, alunoid, instrutorid, data_avaliacao, peso, altura, imc FROM avaliacao_fisica WHERE alunoid = %s", (aluno_id,))
+        resultados = cursor.fetchall()
+        cursor.close()
+        return [AvaliacaoFisica(r[0], r[1], r[2], r[3], r[4], r[5], r[6]) for r in resultados]
