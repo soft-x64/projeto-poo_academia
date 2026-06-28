@@ -1,36 +1,28 @@
-from database import get_connection
+import psycopg2
+from models.aparelho import Aparelho
 
 class AparelhoRepository:
-    def inserir(self, aparelho_obj):
-        sql = "INSERT INTO aparelho (nome, tipo) VALUES (%s, %s) RETURNING id;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (aparelho_obj.nome, aparelho_obj.tipo))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro AparelhoRepository.inserir]: {e}")
-            raise e
-        finally:
-            if conn: conn.close()
+    def __init__(self):
+        self.conn = psycopg2.connect(dbname="academia_poo", user="postgres", password="123456", host="localhost")
 
-    def listar_todos(self):
-        sql = "SELECT id, nome, tipo FROM aparelho ORDER BY nome;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            resultados = cursor.fetchall()
-            cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro AparelhoRepository.listar_todos]: {e}")
-            return []
-        finally:
-            if conn: conn.close()
+    def salvar(self, aparelho):
+        cursor = self.conn.cursor()
+        # Certifique-se de que o nome da coluna no SQL é 'grupomuscular'
+        sql = "INSERT INTO aparelho (nome, grupomuscular) VALUES (%s, %s)"
+        cursor.execute(sql, (aparelho.nome, aparelho.grupoMuscular))
+        self.conn.commit()
+        cursor.close()
+
+    def listar(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, nome, grupomuscular FROM aparelho")
+        resultados = cursor.fetchall()
+        cursor.close()
+        # Converte tupla (id, nome, grupomuscular) para Objeto Aparelho
+        return [Aparelho(id=r[0], nome=r[1], grupoMuscular=r[2]) for r in resultados]
+
+    def excluir(self, id_aparelho):
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM aparelho WHERE id = %s", (id_aparelho,))
+        self.conn.commit()
+        cursor.close()
