@@ -1,33 +1,28 @@
+from models.aparelho import Aparelho
+
 def sub_menu_aparelho(aparelho_service):
     while True:
         print("\n--- GERENCIAR APARELHOS ---")
         print("1. Cadastrar | 2. Listar | 3. Excluir | 4. Voltar")
         opcao = input("Escolha: ")
-        
+
         if opcao == "1":
-            nome = input("Nome: ")
+            nome = input("Nome do Aparelho: ")
             grupo = input("Grupo Muscular: ")
-            aparelho_service.cadastrar(nome, grupo)
+            novo_aparelho = Aparelho(nome=nome, grupo_muscular=grupo)
+            aparelho_service.cadastrar(novo_aparelho)
             print("Aparelho cadastrado com sucesso!")
-            
+        
         elif opcao == "2":
-            lista = aparelho_service.listar_todos()
-            if not lista:
-                print("------------------------------")
-                print("\nNenhum aparelho cadastrado.")
-            else:
-                for a in lista:
-                    print(f"ID: {a.id} | Nome: {a.nome} | Grupo: {a.grupoMuscular}")
-                    
+            print("\n--- LISTA DE APARELHOS ---")
+            for a in aparelho_service.listar_todos():
+                print(f"ID: {a.id} | Nome: {a.nome} | Grupo: {a.grupo_muscular}")
+
         elif opcao == "3":
-            id_del = input("Digite o ID do aparelho para excluir: ")
             try:
-                aparelho_service.excluir(id_del)
-                print("Aparelho excluído com sucesso!")
-            except Exception as e:
-                print(f"Erro ao excluir: {e}. (Verifique se não há exercícios usando este aparelho).")
-                
+                id_excluir = int(input("ID para excluir: "))
+                aparelho_service.excluir(id_excluir)
+            except ValueError:
+                print("ID inválido!")
         elif opcao == "4":
             break
-        else:
-            print("\n[!] Opção inválida!")  
