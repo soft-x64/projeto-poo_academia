@@ -3,13 +3,13 @@ class AlunoService:
         self.repository = repository
 
     def cadastrar(self, aluno):
-        # O service recebe o objeto pronto e repassa para o repository
         self.repository.salvar(aluno)
 
     def listar_todos(self):
         return self.repository.listar()
 
     def excluir(self, aluno_id):
+        # O repositório agora retorna True ou False
         sucesso = self.repository.excluir(aluno_id)
         if sucesso:
             print("Aluno excluído com sucesso!")
