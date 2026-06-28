@@ -9,7 +9,6 @@ class InstrutorService:
         return self.repository.listar()
 
     def excluir(self, instrutor_id):
-        # Verifica o resultado booleano vindo do repositório
         if self.repository.excluir(instrutor_id):
             print("Instrutor excluído com sucesso!")
         else:
