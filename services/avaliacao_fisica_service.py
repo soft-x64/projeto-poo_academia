@@ -1,16 +1,27 @@
-from models.avaliacao_fisica import AvaliacaoFisica
+from datetime import datetime
 
 class AvaliacaoFisicaService:
     def __init__(self, repository):
         self.repository = repository
 
-    def registrar(self, alunoId, instrutorId, peso, altura):
-        p = float(peso)
-        a = float(altura)
-        imc = p / (a * a)
-        
-        av = AvaliacaoFisica(alunoId=int(alunoId), instrutorId=int(instrutorId), peso=p, altura=a, imc=round(imc, 2))
-        self.repository.salvar(av)
+    def cadastrar(self, avaliacao):
+        try:
+            if avaliacao.data:
+                # Converte para formato SQL AAAA-MM-DD
+                data_formatada = datetime.strptime(avaliacao.data, "%d/%m/%Y").strftime("%Y-%m-%d")
+                avaliacao.data = data_formatada
+            self.repository.salvar(avaliacao)
+            print("Avaliação cadastrada com sucesso!")
+        except ValueError:
+            print("Erro: Formato de data inválido. Use DD/MM/AAAA.")
+        except Exception as e:
+            print(f"Erro ao salvar: {e}")
 
-    def listar_do_aluno(self, alunoId):
-        return self.repository.buscar_por_aluno(alunoId)
+    def listar_por_aluno(self, id_aluno):
+        return self.repository.listar_por_aluno(id_aluno)
+
+    def excluir(self, id_avaliacao):
+        if self.repository.excluir(id_avaliacao):
+            print("Avaliação excluída com sucesso!")
+        else:
+            print("Erro: Avaliação não encontrada.")
