@@ -2,15 +2,15 @@ class InstrutorService:
     def __init__(self, repository):
         self.repository = repository
 
-    def cadastrar_instrutor(self, instrutor_obj):
-        # Verifica se o CPF já existe para evitar duplicidade (Regra de Negócio)
-        if self.repository.buscar_por_cpf(instrutor_obj.cpf):
-            print("Erro: CPF do instrutor já cadastrado!")
-            return None
-        return self.repository.inserir(instrutor_obj)
+    def cadastrar(self, instrutor):
+        self.repository.salvar(instrutor)
 
-    def listar_instrutores(self):
-        return self.repository.listar_todos()
+    def listar_todos(self):
+        return self.repository.listar()
 
-    # Podemos adicionar outros métodos conforme a necessidade, 
-    # como remover ou atualizar, seguindo o padrão que fizemos para Aluno.
+    def excluir(self, instrutor_id):
+        # Verifica o resultado booleano vindo do repositório
+        if self.repository.excluir(instrutor_id):
+            print("Instrutor excluído com sucesso!")
+        else:
+            print(f"Erro: Nenhum instrutor encontrado com o ID {instrutor_id}.")
