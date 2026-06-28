@@ -1,4 +1,4 @@
-# Importações de Repositories
+# Importações de Repositories (Importação direta para evitar erros circulares)
 from repositories.aluno_repository import AlunoRepository
 from repositories.instrutor_repository import InstrutorRepository
 from repositories.aparelho_repository import AparelhoRepository
@@ -58,7 +58,6 @@ def main():
         elif opcao == "3":
             sub_menu_aparelho(aparelho_service)
         elif opcao == "4":
-            # Passamos o aparelho_service aqui para que o menu exercicio possa listar aparelhos
             sub_menu_exercicio(exercicio_service, aparelho_service)
         elif opcao == "5":
             sub_menu_ficha(ficha_service, item_service, exercicio_service)
