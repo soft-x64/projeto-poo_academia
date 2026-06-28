@@ -1,17 +1,16 @@
-from datetime import datetime
-from models.ficha_treino import FichaTreino
-
 class FichaTreinoService:
     def __init__(self, repository):
         self.repository = repository
 
-    def criar_ficha(self, id_aluno, data_inicio_str, data_venc_str):
-        inicio = datetime.strptime(data_inicio_str, "%d/%m/%Y").strftime("%Y-%m-%d")
-        venc = datetime.strptime(data_venc_str, "%d/%m/%Y").strftime("%Y-%m-%d")
-        return self.repository.salvar(FichaTreino(idAluno=id_aluno, dataInicio=inicio, dataVencimento=venc))
+    def criar(self, ficha):
+        self.repository.salvar(ficha)
 
     def listar_todas(self):
-        return self.repository.listar_todos()
+        # O método no repository chama-se listar()
+        return self.repository.listar()
 
-    def excluir(self, id_ficha):
-        return self.repository.excluir(id_ficha)
+    def excluir(self, ficha_id):
+        if self.repository.excluir(ficha_id):
+            print("Ficha excluída com sucesso!")
+        else:
+            print(f"Erro: Ficha {ficha_id} não encontrada.")
