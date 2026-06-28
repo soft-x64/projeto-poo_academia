@@ -1,17 +1,17 @@
+from datetime import datetime
+from models.ficha_treino import FichaTreino
+
 class FichaTreinoService:
     def __init__(self, repository):
         self.repository = repository
 
-    def cadastrar_ficha(self, ficha_obj, lista_exercicios):
-        """
-        Cadastra uma ficha de treino.
-        Regra de negócio: A ficha deve conter pelo menos um exercício.
-        """
-        if not lista_exercicios or len(lista_exercicios) == 0:
-            print("Erro: A ficha de treino deve conter pelo menos um exercício!")
-            return None
-            
-        return self.repository.inserir(ficha_obj)
+    def criar_ficha(self, id_aluno, data_inicio_str, data_venc_str):
+        inicio = datetime.strptime(data_inicio_str, "%d/%m/%Y").strftime("%Y-%m-%d")
+        venc = datetime.strptime(data_venc_str, "%d/%m/%Y").strftime("%Y-%m-%d")
+        return self.repository.salvar(FichaTreino(idAluno=id_aluno, dataInicio=inicio, dataVencimento=venc))
 
-    def listar_fichas(self):
+    def listar_todas(self):
         return self.repository.listar_todos()
+
+    def excluir(self, id_ficha):
+        return self.repository.excluir(id_ficha)
