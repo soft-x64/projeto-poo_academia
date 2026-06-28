@@ -3,34 +3,27 @@ from models.aluno import Aluno
 def sub_menu_aluno(aluno_service):
     while True:
         print("\n--- GERENCIAR ALUNOS ---")
-        print("1. Cadastrar Aluno")
-        print("2. Listar Alunos")
-        print("3. Excluir Aluno")
-        print("4. Voltar")
-        opcao = input("Escolha uma opção: ")
-
+        print("1. Cadastrar | 2. Listar | 3. Excluir | 4. Voltar")
+        opcao = input("Escolha: ")
         if opcao == "1":
-            nome = input("Nome Completo: ")
-            email = input("E-mail: ")
-            contato = input("Contato: ")
-            objetivo = input("Objetivo: ")
-            
-            # Criamos o objeto aqui
-            novo_aluno = Aluno(nomecompleto=nome, email=email, contato=contato, objetivo=objetivo)
-            
-            # Enviamos APENAS o objeto
-            aluno_service.cadastrar(novo_aluno)
-            print("Aluno cadastrado com sucesso!")
-
+            aluno = Aluno(
+                nome=input("Nome: "), 
+                cpf=input("CPF: "), 
+                email=input("E-mail: "), 
+                telefone=input("Telefone: "), 
+                objetivo=input("Objetivo: ")
+            )
+            aluno_service.cadastrar(aluno)
+            print("Sucesso!")
         elif opcao == "2":
-            alunos = aluno_service.listar_todos()
-            print("\n--- LISTA DE ALUNOS ---")
-            for a in alunos:
-                print(f"ID: {a.id} | Nome: {a.nomecompleto} | Objetivo: {a.objetivo} | Contato: {a.contato}")
-
+            # POLIMORFISMO AQUI: chama o método definido na classe base ou herdada
+            for a in aluno_service.listar_todos():
+                print(f"ID: {a.id} | {a.exibir_perfil()} | Tel: {a._telefone}")
         elif opcao == "3":
-            id_aluno = input("Digite o ID do aluno que deseja excluir: ")
-            aluno_service.excluir(int(id_aluno))
-
-        elif opcao == "4":
-            break
+            try:
+                id_excluir = int(input("ID para excluir: "))
+                aluno_service.excluir(id_excluir)
+                print("Excluído!")
+            except:
+                print("ID inválido!")
+        elif opcao == "4": break
