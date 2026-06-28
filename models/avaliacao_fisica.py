@@ -1,8 +1,8 @@
 class AvaliacaoFisica:
-    def __init__(self, id=None, alunoId=None, instrutorId=None, data=None, peso=None, altura=None, imc=None):
+    def __init__(self, id=None, id_aluno=None, id_instrutor=None, data=None, peso=None, altura=None, imc=None):
         self.id = id
-        self.alunoId = alunoId
-        self.instrutorId = instrutorId
+        self.id_aluno = id_aluno
+        self.id_instrutor = id_instrutor
         self.data = data
         self.peso = peso
         self.altura = altura
