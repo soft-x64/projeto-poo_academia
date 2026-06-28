@@ -2,17 +2,16 @@ class AlunoService:
     def __init__(self, repository):
         self.repository = repository
 
-    def cadastrar_aluno(self, aluno_obj):
-        if self.repository.buscar_por_cpf(aluno_obj.cpf):
-            print("Erro: CPF já cadastrado!")
-            return None
-        return self.repository.inserir(aluno_obj)
+    def cadastrar(self, aluno):
+        # O service recebe o objeto pronto e repassa para o repository
+        self.repository.salvar(aluno)
 
-    def atualizar_aluno(self, aluno_obj):
-        return self.repository.atualizar(aluno_obj)
+    def listar_todos(self):
+        return self.repository.listar()
 
-    def listar_alunos(self):
-        return self.repository.listar_todos()
-
-    def remover_aluno(self, id_aluno):
-        return self.repository.excluir(id_aluno)
+    def excluir(self, aluno_id):
+        sucesso = self.repository.excluir(aluno_id)
+        if sucesso:
+            print("Aluno excluído com sucesso!")
+        else:
+            print(f"Erro: Nenhum aluno encontrado com o ID {aluno_id}.")
