@@ -1,5 +1,5 @@
 class Aparelho:
-    def __init__(self, id=None, nome=None, grupoMuscular=None):
+    def __init__(self, id=None, nome=None, grupo_muscular=None):
         self.id = id
         self.nome = nome
-        self.grupoMuscular = grupoMuscular
+        self.grupo_muscular = grupo_muscular
