@@ -1,36 +1,26 @@
-from database import get_connection
+import psycopg2
+from models.exercicio import Exercicio
 
 class ExercicioRepository:
-    def inserir(self, exercicio_obj):
-        sql = "INSERT INTO exercicio (nome, grupo_muscular) VALUES (%s, %s) RETURNING id;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql, (exercicio_obj.nome, exercicio_obj.grupo_muscular))
-            id_inserido = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            return id_inserido
-        except Exception as e:
-            if conn: conn.rollback()
-            print(f"[Erro ExercicioRepository.inserir]: {e}")
-            raise e
-        finally:
-            if conn: conn.close()
+    def __init__(self):
+        self.conn = psycopg2.connect(dbname="academia_poo", user="postgres", password="123456", host="localhost")
 
-    def listar_todos(self):
-        sql = "SELECT id, nome, grupo_muscular FROM exercicio ORDER BY nome;"
-        conn = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            resultados = cursor.fetchall()
-            cursor.close()
-            return resultados
-        except Exception as e:
-            print(f"[Erro ExercicioRepository.listar_todos]: {e}")
-            return []
-        finally:
-            if conn: conn.close()
+    def salvar(self, exercicio):
+        cursor = self.conn.cursor()
+        sql = "INSERT INTO exercicio (nome, grupomuscular, descricaoaudio, idaparelho) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (exercicio.nome, exercicio.grupomuscular, exercicio.descricaoaudio, exercicio.idaparelho))
+        self.conn.commit()
+        cursor.close()
+
+    def listar(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT id, nome, grupomuscular, descricaoaudio, idaparelho FROM exercicio")
+        resultados = cursor.fetchall()
+        cursor.close()
+        return [Exercicio(id=r[0], nome=r[1], grupomuscular=r[2], descricaoaudio=r[3], idaparelho=r[4]) for r in resultados]
+
+    def excluir(self, id_exercicio):
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM exercicio WHERE id = %s", (id_exercicio,))
+        self.conn.commit()
+        cursor.close()
