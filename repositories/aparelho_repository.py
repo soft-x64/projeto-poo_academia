@@ -7,22 +7,30 @@ class AparelhoRepository:
 
     def salvar(self, aparelho):
         cursor = self.conn.cursor()
-        # Certifique-se de que o nome da coluna no SQL é 'grupomuscular'
+        # Coluna corrigida para 'grupomuscular'
         sql = "INSERT INTO aparelho (nome, grupomuscular) VALUES (%s, %s)"
-        cursor.execute(sql, (aparelho.nome, aparelho.grupoMuscular))
+        cursor.execute(sql, (aparelho.nome, aparelho.grupo_muscular))
         self.conn.commit()
         cursor.close()
 
     def listar(self):
         cursor = self.conn.cursor()
+        # Coluna corrigida para 'grupomuscular'
         cursor.execute("SELECT id, nome, grupomuscular FROM aparelho")
         resultados = cursor.fetchall()
         cursor.close()
-        # Converte tupla (id, nome, grupomuscular) para Objeto Aparelho
-        return [Aparelho(id=r[0], nome=r[1], grupoMuscular=r[2]) for r in resultados]
+        return [Aparelho(id=r[0], nome=r[1], grupo_muscular=r[2]) for r in resultados]
 
-    def excluir(self, id_aparelho):
+    def excluir(self, id):
         cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM aparelho WHERE id = %s", (id_aparelho,))
-        self.conn.commit()
-        cursor.close()
+        try:
+            cursor.execute("DELETE FROM aparelho WHERE id = %s", (id,))
+            linhas = cursor.rowcount
+            self.conn.commit()
+            return linhas > 0
+        except Exception as e:
+            self.conn.rollback()
+            print(f"Erro ao excluir: {e}")
+            return False
+        finally:
+            cursor.close()
