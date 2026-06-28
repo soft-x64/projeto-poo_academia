@@ -1,8 +1,10 @@
-class Instrutor:
-    def __init__(self, id=None, nomecompleto=None, cpf=None, email=None, telefone=None, especialidade=None):
+from models.pessoa import Pessoa
+
+class Instrutor(Pessoa):
+    def __init__(self, id=None, nome=None, cpf=None, email=None, telefone=None, especialidade=None):
+        super().__init__(nome, cpf, email, telefone)
         self.id = id
-        self.nomecompleto = nomecompleto
-        self.cpf = cpf
-        self.email = email
-        self.telefone = telefone
         self.especialidade = especialidade
+
+    def exibir_perfil(self):
+        return f"Instrutor: {self._nome} | Especialidade: {self.especialidade}"
