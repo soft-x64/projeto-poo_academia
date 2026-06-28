@@ -1,9 +1,16 @@
+from models.avaliacao_fisica import AvaliacaoFisica
+
 class AvaliacaoFisicaService:
     def __init__(self, repository):
         self.repository = repository
 
-    def registrar_avaliacao(self, avaliacao_obj):
-        return self.repository.inserir(avaliacao_obj)
+    def registrar(self, alunoId, instrutorId, peso, altura):
+        p = float(peso)
+        a = float(altura)
+        imc = p / (a * a)
+        
+        av = AvaliacaoFisica(alunoId=int(alunoId), instrutorId=int(instrutorId), peso=p, altura=a, imc=round(imc, 2))
+        self.repository.salvar(av)
 
-    def listar_avaliacoes_do_aluno(self, aluno_id):
-        return self.repository.listar_por_aluno(aluno_id)
+    def listar_do_aluno(self, alunoId):
+        return self.repository.buscar_por_aluno(alunoId)
