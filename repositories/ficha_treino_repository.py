@@ -7,22 +7,22 @@ class FichaTreinoRepository:
 
     def salvar(self, ficha):
         cursor = self.conn.cursor()
-        try:
-            sql = "INSERT INTO ficha_treino (idaluno, datainicio, datavencimento) VALUES (%s, %s, %s) RETURNING id"
-            cursor.execute(sql, (ficha.idAluno, ficha.dataInicio, ficha.dataVencimento))
-            id_ficha = cursor.fetchone()[0]
-            self.conn.commit()
-            return id_ficha
-        except Exception as e:
-            self.conn.rollback()
-            raise e
-        finally:
-            cursor.close()
+        sql = "INSERT INTO ficha_treino (idaluno, datainicio, datavencimento) VALUES (%s, %s, %s)"
+        cursor.execute(sql, (ficha.id_aluno, ficha.data_inicio, ficha.data_vencimento))
+        self.conn.commit()
+        cursor.close()
 
-    def listar_todos(self):
+    def listar(self): # Nome padronizado para 'listar'
         cursor = self.conn.cursor()
-        try:
-            cursor.execute("SELECT id, idaluno, datainicio, datavencimento FROM ficha_treino")
-            return cursor.fetchall()
-        finally:
-            cursor.close()
+        cursor.execute("SELECT id, idaluno, datainicio, datavencimento FROM ficha_treino")
+        resultados = cursor.fetchall()
+        cursor.close()
+        return [FichaTreino(id=r[0], id_aluno=r[1], data_inicio=r[2], data_vencimento=r[3]) for r in resultados]
+
+    def excluir(self, id):
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM ficha_treino WHERE id = %s", (id,))
+        linhas = cursor.rowcount
+        self.conn.commit()
+        cursor.close()
+        return linhas > 0
