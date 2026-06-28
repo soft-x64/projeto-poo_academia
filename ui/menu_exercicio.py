@@ -10,27 +10,38 @@ def sub_menu_exercicio(exercicio_service, aparelho_service):
             nome = input("Nome do Exercício: ")
             grupo = input("Grupo Muscular: ")
             
-            # Listamos os aparelhos para o usuário escolher o ID
+            # Lista os aparelhos disponíveis
             print("\nAparelhos disponíveis:")
-            for a in aparelho_service.listar_todos():
+            aparelhos = aparelho_service.listar_todos()
+            for a in aparelhos:
                 print(f"ID: {a.id} | {a.nome}")
             
-            id_aparelho = input("Digite o ID do aparelho para este exercício: ")
+            id_aparelho_input = input("Digite o ID do aparelho para este exercício: ")
             
-            novo_exercicio = Exercicio(nome=nome, grupo_muscular=grupo, id_aparelho=id_aparelho)
-            exercicio_service.cadastrar(novo_exercicio)
-            print("Exercício cadastrado com sucesso!")
-
+            # Validação para evitar erro de banco de dados
+            if not nome.strip() or not grupo.strip() or not id_aparelho_input.isdigit():
+                print("\n[!] Erro: Nome e Grupo são obrigatórios e o ID do Aparelho deve ser um número válido!")
+            else:
+                novo_exercicio = Exercicio(
+                    nome=nome, 
+                    grupo_muscular=grupo, 
+                    id_aparelho=int(id_aparelho_input)
+                )
+                exercicio_service.cadastrar(novo_exercicio)
+                print("Exercício cadastrado com sucesso!")
+            
         elif opcao == "2":
             print("\n--- LISTA DE EXERCÍCIOS ---")
-            for e in exercicio_service.listar_todos():
-                print(f"ID: {e.id} | Nome: {e.nome} | Grupo: {e.grupo_muscular} | Aparelho ID: {e.id_aparelho}")
-
+            for ex in exercicio_service.listar_todos():
+                print(f"ID: {ex.id} | Nome: {ex.nome} | Grupo: {ex.grupo_muscular} | Aparelho ID: {ex.id_aparelho}")
+        
         elif opcao == "3":
             try:
-                id_excluir = int(input("ID para excluir: "))
+                id_excluir = int(input("ID do exercício para excluir: "))
                 exercicio_service.excluir(id_excluir)
+                print("Exercício excluído!")
             except ValueError:
                 print("ID inválido!")
+            
         elif opcao == "4":
             break
